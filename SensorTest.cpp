@@ -5,27 +5,30 @@
 
 MeBuzzer buzzer;
 MeUltrasonicSensor ultraSensor(PORT_6);
-void setup() 
-{
-  // initialize serial communications at 9600 bps
-Serial.begin(9600);
+
+int pushupCount = 0;
+bool downDetected = false;
+
+void setup() {
+  Serial.begin(9600);
 }
 
 void loop() {
   int distance = ultraSensor.distanceCm();
-  Serial.print("Distance: ");
-  Serial.print(ultraSensor.distanceCm());
-//print the measure centimeter of distance
-  Serial.print("inch ");
 
-  if (distance < 10) { // if an object is closer than 10 cm
-    buzzer.tone(1000, 100); // beep at 1000Hz for 100ms
-  }
-delay(100);
-//the minimal measure interval is 100 milliseconds
+  // Go down phase (close to sensor)
+if (distance < 20 && !downDetected) {
+  downDetected = true;
+  buzzer.tone(1000, 100);
+}
+
+if (distance > 35 && downDetected) {
+  pushupCount++;
+  downDetected = false;
+  Serial.print("Push-ups: ");
+  Serial.println(pushupCount);
 }
 
 
-
-
-
+  delay(100); // Minimum delay between checks
+}
